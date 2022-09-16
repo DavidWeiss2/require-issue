@@ -16,11 +16,16 @@ try {
   require("child_process").execSync(
     "cp -r " + path.join(__dirname, "pkg") + " node_modules/pkg"
   );
-} catch (err) {}
+} catch (err) {
+  console.error(err);
+}
 
-new Promise(() =>
-  setTimeout(() => {
-    require("pkg");
-    console.log("works");
-  }, 0)
-).catch((e) => console.log("failed requiering pkg", e));
+try {
+  console.log(require("pkg"));
+} catch (err) {
+  console.error("failed require from package json");
+  const file = fs.readFileSync("./node_modules/pkg/package.json");
+  const data = JSON.parse(file);
+  const _path = path.join(__dirname, "node_modules/pkg/") + data.main;
+  console.log("this works", require(_path));
+}
